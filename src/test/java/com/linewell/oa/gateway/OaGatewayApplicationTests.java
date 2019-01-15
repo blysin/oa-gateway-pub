@@ -1,5 +1,6 @@
 package com.linewell.oa.gateway;
 
+import com.linewell.oa.gateway.property.DingDingProperties;
 import com.linewell.oa.gateway.property.HttpPoolProperties;
 import com.linewell.oa.gateway.property.JwtProperties;
 import org.junit.Test;
@@ -53,14 +54,21 @@ public class OaGatewayApplicationTests {
         ResponseEntity<String> result = restTemplate.postForEntity(appOperationUrl, request, String.class);
         System.out.println(result.getStatusCodeValue());
         System.out.println(result.getHeaders());
-        System.out.println(new String(result.getBody().getBytes(),"UTF-8"));
+        System.out.println(result.getBody());
 
     }
 
+    @Autowired
+    private DingDingProperties dingDingProperties;
     @Test
     public void strTest(){
-        System.out.println(appOperationUrl);
-        System.out.println(appInterfaceUrl);
+        System.out.println(dingDingProperties.getAgentid());
+        System.out.println(dingDingProperties.getAppKey());
+        System.out.println(dingDingProperties.getAppSecret());
+        System.out.println(dingDingProperties.getSwapAuthcode());
+        System.out.println(dingDingProperties.getUrlGetTokken());
+        System.out.println(dingDingProperties.getUrlGetUserInfo());
+        System.out.println(dingDingProperties.getUrlUserGet());
     }
 
 }

@@ -1,6 +1,5 @@
 package com.linewell.oa.gateway.controller;
 
-import com.alibaba.fastjson.JSON;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,20 +9,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * 路由转发
+ *
  * @author Blysin
  * @since 2019-01-14
  */
@@ -39,29 +36,40 @@ public class RouterController {
     private String appInterfaceUrl;
 
     @RequestMapping("/appOperation")
-    public String appOperation(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        ResponseEntity<String> result = restTemplate.postForEntity(appOperationUrl, getParams(request), String.class);
-        return result.getBody();
+    public String appOperation(HttpServletRequest request, HttpServletResponse response) {
+        return distribute(request, appOperationUrl);
     }
 
     @RequestMapping("/appInterface")
-    public String appInterface(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        ResponseEntity<String> result = restTemplate.postForEntity(appInterfaceUrl, getParams(request), String.class);
+    public String appInterface(HttpServletRequest request, HttpServletResponse response) {
+        return distribute(request, appInterfaceUrl);
+    }
+
+    /**
+     * 请求分发
+     *
+     * @param request
+     * @param url
+     * @return
+     */
+    public String distribute(HttpServletRequest request, String url) {
+        ResponseEntity<String> result = restTemplate.postForEntity(url, getParams(request), String.class);
         return result.getBody();
     }
 
     /**
      * 获取参数
+     *
      * @param request
      * @return
      */
-    private HttpEntity getParams(HttpServletRequest request){
+    private HttpEntity getParams(HttpServletRequest request) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         //headers.setContentType(MediaType.APPLICATION_JSON);
         Map<String, String[]> map = request.getParameterMap();
         MultiValueMap<String, Object> params = null;
-        if(MapUtils.isNotEmpty(map)){
+        if (MapUtils.isNotEmpty(map)) {
             params = new LinkedMultiValueMap<>();
             Set<String> keys = map.keySet();
             for (String key : keys) {

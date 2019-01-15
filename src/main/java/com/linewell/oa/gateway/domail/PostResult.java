@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * @author Blysi
+ * @author Blysin
  * @since 2019-01-11
  */
 @Data

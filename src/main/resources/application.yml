@@ -2,7 +2,8 @@ server:
   port: 8180
 
 
-#token加密
+
+#token加密,暂时没用
 jwt:
   pri-key: MIIBVgIBADANBgkqhkiG9w0BAQEFAASCAUAwggE8AgEAAkEAteeZx56BWM5qH7RShXsq1u6IhOWF+DJ5CPUSCArzT6MHSOoNOY0HaW+XMh4NgjHVp5oI/R/m5MChk3al0yGl8wIDAQABAkEAjR63C8lpOZcxd5UybAGos4Psf4V9EJc/lPZjXb/5EO7tTUPg674LLFwDxnoOsbKSRG4UTBGgMr4GVpcN8vIKoQIhAPJ7vR6FXE4shp4wUied804Xik54rLzR6BB1TLSL7d4jAiEAwAtmAm2kw1tBdYCsBmEbyuHTJw73UH/s6IYyf9zBTfECIQDAI2B1wMKlhw6cZjmS/st+A5UqHODzNXinIetH3OD89QIgZHjSKq0QSUCB86aY2VGOx8rzvHiA/TWgTVqAKxLkcxECIQCEgo3hq28oQIntxkJnbemvmOfhzfQvMlT25YM9ldxLmQ==
   pub-key: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBALXnmceegVjOah+0UoV7KtbuiITlhfgyeQj1EggK80+jB0jqDTmNB2lvlzIeDYIx1aeaCP0f5uTAoZN2pdMhpfMCAwEAAQ==
@@ -23,3 +24,34 @@ oa:
 
 logging:
   config: classpath:log4j2.xml
+spring:
+  profiles:
+    active: dev
+
+---
+# 开发环境下的配置
+
+spring:
+  profiles: dev
+
+dd:
+  agentid: 217839012
+  app-key: dinglywwpgzrjk1wgcro
+  app-secret: gYIrn_XPUOkZDPmPE7rxybTC44Fb74TnzG2FtvqbkwviGw0TOBm8xG100rB_-N75
+  url_user_get: https://oapi.dingtalk.com/user/get
+  url_get_user_info: https://oapi.dingtalk.com/user/getuserinfo
+  url_get_tokken: https://oapi.dingtalk.com/gettoken
+
+---
+# 正式环境下的配置
+
+spring:
+  profiles: produce
+
+dd:
+  agentid: 210498400
+  app-key: dingv3kgjossxmtllohm
+  app-secret: gTvRkuhTaWcqPORpwBTxK8Q4zTDcS-waWPjmRDnEI4auOacxbMX4vMZYtqBcb8UP
+  url_get_user_info: http://172.26.6.170:9003/oapi/code/getUserByCode
+  url_get_tokken: http://172.26.6.170:9003/v1/oapi/getToken?appid=minzhengtongoa&&appsecret=minzhengtong123
+  swap_authcode: http://172.26.6.170:9003/oapi/code/getCode?code=
