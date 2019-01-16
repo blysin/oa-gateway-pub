@@ -1,7 +1,9 @@
 package com.linewell.oa.gateway.domail;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Blysin
@@ -9,6 +11,8 @@ import lombok.Data;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostResult {
     private int status;
     private boolean result;

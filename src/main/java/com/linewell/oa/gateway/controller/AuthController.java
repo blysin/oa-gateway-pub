@@ -1,6 +1,9 @@
 package com.linewell.oa.gateway.controller;
 
 import com.linewell.oa.gateway.domail.PostResult;
+import com.linewell.oa.gateway.service.DingDingService;
+import com.linewell.oa.gateway.service.TokenService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,10 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+    @Autowired
+    private DingDingService dingDingService;
 
     @RequestMapping("/validateAuthCode")
     public PostResult validateAuthCode(String authCode){
-        return PostResult.success();
+        return PostResult.success(dingDingService.getUserAuthInfo(authCode));
     }
 
     @RequestMapping("/bindUser")

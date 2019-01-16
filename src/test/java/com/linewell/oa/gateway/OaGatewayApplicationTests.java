@@ -3,6 +3,7 @@ package com.linewell.oa.gateway;
 import com.linewell.oa.gateway.property.DingDingProperties;
 import com.linewell.oa.gateway.property.HttpPoolProperties;
 import com.linewell.oa.gateway.property.JwtProperties;
+import com.linewell.oa.gateway.service.TokenService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,15 +61,19 @@ public class OaGatewayApplicationTests {
 
     @Autowired
     private DingDingProperties dingDingProperties;
+    @Autowired
+    private TokenService tokenService;
     @Test
-    public void strTest(){
-        System.out.println(dingDingProperties.getAgentid());
-        System.out.println(dingDingProperties.getAppKey());
-        System.out.println(dingDingProperties.getAppSecret());
-        System.out.println(dingDingProperties.getSwapAuthcode());
-        System.out.println(dingDingProperties.getUrlGetTokken());
-        System.out.println(dingDingProperties.getUrlGetUserInfo());
-        System.out.println(dingDingProperties.getUrlUserGet());
+    public void strTest() throws InterruptedException {
+        for (int i = 0; i < 100; i++) {
+            new Thread(() -> System.out.println(tokenService.getToken())).start();
+            if (i == 0) {
+                Thread.sleep(5000);
+            }
+        }
+        while (true) {
+
+        }
     }
 
 }

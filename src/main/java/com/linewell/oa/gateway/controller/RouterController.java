@@ -1,5 +1,6 @@
 package com.linewell.oa.gateway.controller;
 
+import com.linewell.oa.gateway.property.OaProperties;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,20 +30,17 @@ public class RouterController {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Value("${oa.app-operation-url}")
-    private String appOperationUrl;
-
-    @Value("${oa.app-interface-url}")
-    private String appInterfaceUrl;
+    @Autowired
+    private OaProperties oaProperties;
 
     @RequestMapping("/appOperation")
-    public String appOperation(HttpServletRequest request, HttpServletResponse response) {
-        return distribute(request, appOperationUrl);
+    public Object appOperation(HttpServletRequest request, HttpServletResponse response) {
+        return distribute(request, oaProperties.getAppOperationUrl());
     }
 
     @RequestMapping("/appInterface")
-    public String appInterface(HttpServletRequest request, HttpServletResponse response) {
-        return distribute(request, appInterfaceUrl);
+    public Object appInterface(HttpServletRequest request, HttpServletResponse response) {
+        return distribute(request, oaProperties.getAppInterfaceUrl());
     }
 
     /**
@@ -52,9 +50,10 @@ public class RouterController {
      * @param url
      * @return
      */
-    public String distribute(HttpServletRequest request, String url) {
-        ResponseEntity<String> result = restTemplate.postForEntity(url, getParams(request), String.class);
-        return result.getBody();
+    public Object distribute(HttpServletRequest request, String url) {
+        //ResponseEntity<String> result = restTemplate.postForEntity(url, getParams(request), String.class);
+        //return result.getBody();
+        return restTemplate.postForObject(url, getParams(request),Object.class);
     }
 
     /**

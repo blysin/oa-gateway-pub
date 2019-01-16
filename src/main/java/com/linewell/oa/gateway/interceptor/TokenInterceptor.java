@@ -2,6 +2,7 @@ package com.linewell.oa.gateway.interceptor;
 
 import com.linewell.oa.gateway.util.JwtUtils;
 import io.micrometer.core.instrument.util.StringUtils;
+import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -13,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author token校验
  * @since 2019-01-11
  */
-@Slf4j
+@Log4j2
 public class TokenInterceptor  implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -29,7 +30,7 @@ public class TokenInterceptor  implements HandlerInterceptor {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        log.info("权限校验通过");
+        //log.info("权限校验通过");
     }
 
     @Override
