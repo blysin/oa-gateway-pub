@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 用户权限认证
+ * 用户权限认证，作废不用
  * @author Blysin
  * @since 2019-01-15
  */

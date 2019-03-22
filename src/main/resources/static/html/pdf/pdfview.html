@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <title></title>
+    <link rel="stylesheet" href="css/style.css"/>
+    <link rel="stylesheet" href="css/pdfh5.css"/>
+    <style>
+        .pdfjs {
+            width: 100%;
+            height: 100%;
+            /* height: 50%; */
+            overflow: hidden;
+            background: #fff;
+            position: relative;
+        }
+
+        /* .pdfjs2 {
+            width: 100%;
+            height: 50%;
+            overflow: hidden;
+            background: #fff;
+            position: relative;
+        } */
+    </style>
+</head>
+
+<body>
+<!--<div class="msg"></div>-->
+<div class="pdfjs"></div>
+<script src="js/pdf.js?t=1" type="text/javascript" charset="utf-8"></script>
+<script src="js/pdf.worker.js?t=1" type="text/javascript" charset="utf-8"></script>
+<script src="js/jquery-1.11.3.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/pdfh5.js?t=2" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="https://appx/web-view.min.js"></script>
+<script type="text/javascript">
+    var params = {};
+    // var dd = {
+    //     postMessage:function(){}
+    // };
+
+
+    window.onload=function(){
+        //页面完成加载，发送消息给小程序
+        dd.postMessage({fn:"init"});
+        // params = {
+        //     fileUnid:"20181214145212XX5EAF6D5CCAC94211",
+        //     userunid:'71435EC45072BA4CFC77A42FA2A76F1B',
+        // }
+        // getPdf();
+    }
+
+    dd.onMessage = function(e) {
+        if('close' == e.fn){
+            dd.navigateBack();
+        }
+        else{
+            params = e;
+            getPdf();
+        }
+    }
+
+    function getPdf() {
+        var userunid = params.userunid || '';
+        var fileUnid = params.fileUnid || '';
+        var url = getPath() + '/appOperation.action?fn=fileDownload&fileUnid=' + fileUnid + "&userunid=" + userunid;
+        $('.msg').append(url);
+        try{
+            new Pdfh5('.pdfjs', {
+                // pdfurl: "https://raw.githubusercontent.com/blysin/springboot_demo/master/cache/Java%E7%A0%94%E5%8F%91_%E6%88%B4%E5%B0%91%E5%9D%A4_18959262685.pdf"
+                pdfurl:url
+            });
+        }catch (e) {
+            console.log(e)
+            $('.msg').html($('.msg').html()+"\n"+e.message);
+        }
+    }
+
+    function getPath() {
+        var pathname = location.pathname;
+        return pathname.substring(0, pathname.substr(1).indexOf('/') + 1);
+    }
+</script>
+</body>
+
+</html>

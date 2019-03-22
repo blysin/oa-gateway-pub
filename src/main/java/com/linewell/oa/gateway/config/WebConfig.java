@@ -28,6 +28,6 @@ public class WebConfig implements  WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new TokenInterceptor()).addPathPatterns("/**");//添加一个拦截器，并配置拦截uri
+        //registry.addInterceptor(new TokenInterceptor()).addPathPatterns("/**");//添加一个拦截器，并配置拦截uri
     }
 }

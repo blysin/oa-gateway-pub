@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <title>文件预览</title>
+    <link rel="stylesheet" href="pdfjs/components/pdf_viewer.css">
+    <link rel="stylesheet" type="text/css" href="viewer.css">
+    <style>
+        #viewerContainer {
+            top: 1.2rem;
+        }
+
+        .pdf-page {
+            /*transform: rotate(0deg) scale(1, 1);*/
+        }
+        /*.pdf-contenter {*/
+            /*width: 320px !important;*/
+            /*height: 452px !important;*/
+        /*}*/
+        #template{
+            /*display: none;*/
+        }
+        #msg{
+            color: #000;
+        }
+    </style>
+</head>
+
+<body>
+<!-- <header>
+    <h1 id="title"></h1>
+</header> -->
+<div id="msg"></div>
+<div id="viewerContainer" class="c1">
+    <div id="viewer" class="pdfViewer c2">
+        <div class="page pdf-contenter" id="template" data-page-number="1">
+            <div class="canvasWrapper pdf-contenter ">
+                <canvas width="2387" class="pdf-page pdf-contenter" height="3374"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <div id="loadingBar">
+    <div class="progress"></div>
+    <div class="glimmer"></div>
+</div> -->
+
+<div id="errorWrapper" hidden="true">
+    <div id="errorMessageLeft">
+        <span id="errorMessage"></span>
+        <button id="errorShowMore">
+            More Information
+        </button>
+        <button id="errorShowLess">
+            Less Information
+        </button>
+    </div>
+    <div id="errorMessageRight">
+        <button id="errorClose">
+            Close
+        </button>
+    </div>
+    <div class="clearBoth"></div>
+    <textarea id="errorMoreInfo" hidden="true" readonly="readonly"></textarea>
+</div>
+
+<!--<footer>-->
+    <!--<button class="toolbarButton pageUp" title="Previous Page" id="previous"></button>-->
+    <!--<button class="toolbarButton pageDown" title="Next Page" id="next"></button>-->
+
+    <!--<input type="number" id="pageNumber" class="toolbarField pageNumber" value="1" size="4" min="1">-->
+
+    <!--<button class="toolbarButton zoomOut" title="Zoom Out" id="zoomOut"></button>-->
+    <!--<button class="toolbarButton zoomIn" title="Zoom In" id="zoomIn"></button>-->
+<!--</footer>-->
+
+<script type="text/javascript" src="https://appx/web-view.min.js"></script>
+<script src="../pdf/js/jquery-1.11.3.min.js"></script>
+<script src="watch.min.js"></script>
+<script src="viewer.js"></script>
+
+<script>
+    var params = {};
+    //
+    // var dd = {
+    //     postMessage:function(){}
+    // };
+
+    dd.onMessage = function(e) {
+        if('close' == e.fn){
+            dd.navigateBack();
+        }
+        else{
+            params = e;
+            getPdf();
+        }
+    }
+
+    window.onload=function(){
+        //页面完成加载，发送消息给小程序
+        dd.postMessage({fn:"init"});
+        var w = document.body.clientWidth - 20;
+        var h = Math.floor(w * 1.4125);
+        // var h = Math.floor(w * 1.4125);
+        $(".pdf-contenter").css("width", w + "px").css("height", h + "px");
+        // $("#msg").text($(".pdf-contenter").attr("style"));
+
+        // params = {
+        //     fileUnid:"20181214145212XX5EAF6D5CCAC94211",
+        //     userunid:'71435EC45072BA4CFC77A42FA2A76F1B',
+        // }
+        // getPdf();
+    }
+
+    PDFViewerApplication.animationStartedPromise.then(function() {
+        console.log('loading');
+        // params = {
+        //     fileUnid:"20181214145212XX5EAF6D5CCAC94211",
+        //     userunid:'71435EC45072BA4CFC77A42FA2A76F1B',
+        // };
+        // getPdf();
+    });
+
+    function getPdf(){
+        params.fn = 'pdfToImage';
+        var actionUrl = getPath()+"/appOperation.action"
+        $.ajax({
+            url: actionUrl,
+            type: "post",
+            dataType: 'json',
+            timeout: 10000,
+            async: false,
+            data: params,
+            success: function (resp) {
+                console.log(resp)
+                if (resp && resp.result) {
+                    var data = resp.data;
+                    var url = getPath()+data.path+"/";
+                    var template = $("#template");
+                    for (let i = 0; i < data.pages; i++) {
+                        var page = template.clone();
+                        var pageId = "page"+i;
+                        page.attr("data-page-number", i);
+                        page.find("canvas").attr("id", pageId);
+                        template.before(page);
+                        page.show();
+                        drawPage(pageId,url+pageId+".png");
+                    }
+                    template.hide();
+                }
+            },
+            error:function (resp) {
+                console.log(resp)
+            }
+        })
+    }
+
+    function drawPage(id, url) {
+        console.log(id,url)
+        var canvas = document.getElementById(id);
+        if (canvas.getContext) {
+            var ctx = canvas.getContext("2d");
+            var img = new Image();
+            img.src = url;
+            img.onload = function() {
+                //以Canvas画布上的坐标(10,10)为起始点，绘制图像
+                ctx.drawImage(img, 0, 0, 2387, 3374);
+            };
+        }
+    }
+
+    function getPath() {
+        var pathname = location.pathname;
+        return pathname.substring(0, pathname.substr(1).indexOf('/') + 1);
+    }
+
+
+    var pageX, pageY, initX, initY, isTouch = false;
+    var start = [];
+    document.addEventListener("touchstart", function (e) {
+        //手指按下时的手指所在的X，Y坐标
+        pageX = e.targetTouches[0].pageX;
+        pageY = e.targetTouches[0].pageY;
+        //初始位置的X，Y 坐标
+        var el = document.getElementById("viewerContainer")
+
+        initX = el.offsetLeft;
+        initY = el.offsetTop;
+        //记录初始 一组数据 作为缩放使用
+        if (e.touches.length >= 2) { //判断是否有两个点在屏幕上
+            start = e.touches; //得到第一组两个点
+        };
+        //表示手指已按下
+        isTouch = true;
+        // $("#msg").append('begin touch').append("<hr>");
+    }, false);
+
+    //监听 touchmove 事件 手指 移动时 做的事情
+    document.addEventListener("touchmove", function (e) {
+        return false;//缩放功能不好用，先屏蔽掉
+        e.preventDefault();
+        // 一根 手指 执行 目标元素移动 操作
+        if (e.touches.length == 1 && isTouch) {
+            //移动目标的 X Y 坐标
+            var el = document.getElementById("viewerContainer")
+            var touchMoveX = e.targetTouches[0].pageX,
+                touchMoveY = e.targetTouches[0].pageY;
+            //设置当前点击元素的 top left 定位值
+
+            el.style.left = parseInt(touchMoveX) - parseInt(pageX) + parseInt(initX) + "px";
+            // el.style.top = parseInt(touchMoveY) - parseInt(pageY) + parseInt(initY) + "px";
+        };
+
+        // 2 根 手指执行 目标元素放大操作
+        if (e.touches.length >= 2 && isTouch /*&& e.scale < 2.5*/) {
+            //得到第二组两个点
+            var now = e.touches;
+            //得到缩放比例， getDistance 是勾股定理的一个方法
+            var scale = (getDistance(now[0], now[1]) / getDistance(start[0], start[1]));
+            // 对缩放 比例 取整
+            e.scale = scale.toFixed(2);
+            // 执行目标元素的缩放操作
+            // e.target.style.transform = "scale(" + scale + ")";
+            // document.getElementsByClassName("pdf-page").style.transform = "scale(" + scale + ")";
+
+            /*    <div id="viewer" class="pdfViewer">
+                <div class="page pdf-contenter" id="template" data-page-number="1">*/
+
+            // $("#msg").html(scale ).append("<hr>");
+            $('page').css("transform", "scale(" + scale + ")");
+            // document.getElementById("viewerContainer").style.top =  '1rem'
+
+            if(scale<1){
+                setTimeout(function(){
+                    $('body').css("transform", "scale(1)");
+                },600)
+            }
+        };
+    }, false);
+
+    //监听 手指离开屏幕时
+    document.addEventListener("touchend", function (e) {
+        //将 isTouch 修改为false  表示 手指已经离开屏幕
+        if (isTouch) {isTouch = false;}
+    }, false);
+
+    //缩放 勾股定理方法
+    function getDistance(p1, p2) {
+        var x = p2.pageX - p1.pageX,
+            y = p2.pageY - p1.pageY;
+        return Math.sqrt((x * x) + (y * y));
+    };
+
+</script>
+</body>
+
+</html>

@@ -3,6 +3,7 @@ package com.linewell.oa.gateway;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
@@ -53,19 +54,16 @@ public class SimpleTest {
     }
 
     @Test
-    public void test1(){
-        String url = "http://localhost:8080/fzoa/appOperation.action";
-        //Map<String, String> json= new HashMap<>(3);
-        //json.put("userunid", "71435EC45072BA4CFC77A42FA2A76F1B");
-        //json.put("fn", "getLeaveInfo");
-        //json.put("year", "2018");
+    public void test1() {
+        //String url = "http://175.43.157.100:8180/ddoa/appinterface.action";
+        String url = "http://blysin.vaiwan.com:8081/fzoa/appinterface.action";
+        Map<String, Object> map = new HashMap<>();
+        map.put("fn", "loginVerify");
+        map.put("username", "董淑锦");
+        map.put("password", "8c22abf9a3a11d956ce2ade54bca707a");
+        String str = HttpUtil.post(url, map);
 
-        Map<String, Object> map= new HashMap<>();
-        //map.add("shopid","1");
-        map.put("userunid", "71435EC45072BA4CFC77A42FA2A76F1B");
-        map.put("fn", "getLeaveInfo");
-        map.put("year", "2018");
-        String str = HttpUtil.post(url,map);
-        System.out.println(str);
+        JSONObject json = JSON.parseObject(str);
+        System.out.println(JSON.toJSONString(json, true));
     }
 }

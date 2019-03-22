@@ -13,11 +13,14 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -54,4 +57,9 @@ public class RestTemplateConfig {
     public ClientHttpRequestFactory httpRequestFactory() {
         return new HttpComponentsClientHttpRequestFactory(httpClient());
     }
+
+    //@Bean
+    //public SimpleClientHttpRequestFactory httpRequestFactory1() {
+    //    return new SimpleClientHttpRequestFactory().;
+    //}
 }

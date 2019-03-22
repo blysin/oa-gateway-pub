@@ -3,6 +3,7 @@ package com.linewell.oa.gateway;
 import com.linewell.oa.gateway.property.DingDingProperties;
 import com.linewell.oa.gateway.property.HttpPoolProperties;
 import com.linewell.oa.gateway.property.JwtProperties;
+import com.linewell.oa.gateway.property.OaProperties;
 import com.linewell.oa.gateway.service.TokenService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,11 +31,25 @@ public class OaGatewayApplicationTests {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private OaProperties oaProperties;
+
     @Value("${oa.app-operation-url}")
     private String appOperationUrl;
 
     @Value("${oa.app-interface-url}")
     private String appInterfaceUrl;
+
+    @Test
+    public void propertiesTest(){
+        //System.out.println(oaProperties.getAppOperationUrl());
+        //System.out.println(oaProperties.getAppInterfaceUrl());
+        //System.out.println(oaProperties.getAppMicroServiceUrl());
+        //System.out.println(oaProperties.getInterfaceUrl());
+        //System.out.println(oaProperties.getMicroServiceUrl());
+        //System.out.println(oaProperties.getOperationUrl());
+    }
+
 
     @Test
     public void contextLoads() throws UnsupportedEncodingException {
@@ -43,19 +58,19 @@ public class OaGatewayApplicationTests {
         //json.put("fn", "getLeaveInfo");
         //json.put("year", "2018");
 
-        MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
-        //map.add("shopid","1");
-        map.add("userunid", "71435EC45072BA4CFC77A42FA2A76F1B");
-        map.add("fn", "getLeaveInfo");
-        map.add("year", "2018");
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-
-        ResponseEntity<String> result = restTemplate.postForEntity(appOperationUrl, request, String.class);
-        System.out.println(result.getStatusCodeValue());
-        System.out.println(result.getHeaders());
-        System.out.println(result.getBody());
+        //MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
+        ////map.add("shopid","1");
+        //map.add("userunid", "71435EC45072BA4CFC77A42FA2A76F1B");
+        //map.add("fn", "getLeaveInfo");
+        //map.add("year", "2018");
+        //HttpHeaders headers = new HttpHeaders();
+        //headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        //HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+        //
+        //ResponseEntity<String> result = restTemplate.postForEntity(appOperationUrl, request, String.class);
+        //System.out.println(result.getStatusCodeValue());
+        //System.out.println(result.getHeaders());
+        //System.out.println(result.getBody());
 
     }
 
@@ -65,15 +80,15 @@ public class OaGatewayApplicationTests {
     private TokenService tokenService;
     @Test
     public void strTest() throws InterruptedException {
-        for (int i = 0; i < 100; i++) {
-            new Thread(() -> System.out.println(tokenService.getToken())).start();
-            if (i == 0) {
-                Thread.sleep(5000);
-            }
-        }
-        while (true) {
-
-        }
+        //for (int i = 0; i < 100; i++) {
+        //    new Thread(() -> System.out.println(tokenService.getToken())).start();
+        //    if (i == 0) {
+        //        Thread.sleep(5000);
+        //    }
+        //}
+        //while (true) {
+        //
+        //}
     }
 
 }

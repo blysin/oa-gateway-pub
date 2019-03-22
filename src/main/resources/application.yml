@@ -18,10 +18,16 @@ http-pool:
 
 #oa配置
 oa:
-  app-interface-url: http://localhost:8088/fzoa/appinterface.action
-  app-operation-url: http://localhost:8088/fzoa/appOperation.action
-  app-micro-service-url: http://localhost:8088/fzoa/appMicroService.action
+  base-url: http://localhost:8088/fzoa
+  app-interface-url: ${oa.base-url}/appinterface.action
+  app-operation-url: ${oa.base-url}/appOperation.action
+  app-micro-service-url: ${oa.base-url}/appMicroService.action
+  app-files-url: ${oa.base-url}/appFiles_method.action
+  app-flow-image-url: ${oa.base-url}/core/ucap/flow/flow_image_app.jsp
+  app-file-download-url: ${oa.base-url}/appFiles_downloadFile.action
+  app-file-upload-url: ${oa.base-url}/AppFile_upload.action
 
+#log4j配置
 logging:
   config: classpath:log4j2.xml
 spring:
@@ -31,6 +37,12 @@ spring:
     type: ehcache
     ehcache:
       config:
+  mvc:
+    static-path-pattern: /static/**
+  servlet:
+    multipart:
+      max-request-size: 50MB
+      max-file-size: 50MB
 
 
 ---

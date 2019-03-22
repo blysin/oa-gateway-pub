@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+ 
+<head>
+    <title></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="/static/css/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/css/ui-box.css">
+    <link rel="stylesheet" href="/static/css/ui-base.css">
+    <link rel="stylesheet" href="/static/css/ui-color.css">
+    <link rel="stylesheet" href="/static/css/appcan.icon.css">
+    <link rel="stylesheet" href="/static/css/sui/sm.css">
+    <link rel="stylesheet" href="/static/css/zTree/zTreeStyle.css" type="text/css">
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/ztree3/js/jquery.ztree.all.min.js"></script>
+    <script type="text/javascript" src="https://appx/web-view.min.js"></script>
+    <style>
+        /**{*/
+            /*font-size: 24px;*/无文本内容
+        /*}*/
+    </style>
+</head>
+
+<body class="um-vp bc-bg" ontouchstart>
+    <div id="page_0" class="up ub ub-ver bc-bg" tabindex="0">
+        <!--content开始-->
+        <div id="content1" class="ub-f1 tx-l" style="overflow: auto;background: #FFFFFF;">
+            <div class="ub ub-ver">
+                <form id="form1" name="form1" method="post" action="">
+                    <div class="PenoleContent native-scroll">
+                        <div style="width:100%;height:1px;margin:0px auto;padding:0px;background-color:#D5D5D5;overflow:hidden;"></div>
+                        <div class="list-block media-list">
+                            <ul id="peopleUl">
+                                <ul id="treeDemo" class="ztree"></ul>
+                            </ul>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="uh bc-head  ubb bc-border" style="width:90%;margin-left: 5%;margin-bottom: 5px;border-radius:5px;line-height: 40px;height: 40px;" data-control="HEADER" id="selectAll">
+            <div class="ub nav-btn" style="margin-top: 0.2rem;margin-bottom: 0.2rem;font-size: 20px;color:#fff;" onclick="doSelectAll()">
+                        全 选
+            </div>
+        </div>
+        <div class="uh bc-head  ubb bc-border" style="width:90%;margin-left: 5%;margin-bottom: 5px;border-radius:5px;line-height: 40px;height: 40px;" data-control="HEADER" id="unSelectAll">
+            <div class="ub nav-btn" style="margin-top: 0.2rem;margin-bottom: 0.2rem;font-size: 20px;color:#fff;" onclick="doUnSelectAll()">
+                        清 空
+            </div>
+        </div>
+        <div class="uh bc-head  ubb bc-border" style="width:90%;margin-left: 5%;margin-bottom: 5px;border-radius:5px;line-height: 40px;height: 40px;" data-control="HEADER" id="Header">
+            <div class="ub nav-btn" style="margin-top: 0.2rem;margin-bottom: 0.2rem;font-size: 20px;color:#fff;" onclick="doSure()">
+                        确  定
+            </div>
+        </div>
+        <!--content结束-->
+    </div>
+</body>
+<script type="text/javascript">
+	var zTree;
+	var actionUrl,inpUnid,inpUnidVal,inpName,inpNameVal,actionUrl,fn,chkStyle,userUnid,userDept,type,isAlias,isUnderDept,level;
+	var curStatus = 'init', // 当前状态
+    curAsyncCount = 0,  // 异步加载次数
+    goAsync = false; //异步
+
+    // var dd = {
+    //     postMessage() {
+    //     },
+    //     onMessage() {
+    //     }
+    // }
+
+	var setting = {
+		check: {
+			enable: true,
+			chkStyle: chkStyle,
+			radioType: "all",
+			chkboxType:  { "Y": "s", "N": "s" }
+        },
+        data: {
+            simpleData: {
+                enable: true
+            }
+        },
+        callback:  {               
+            onClick: function(e,  treeId,  treeNode,  clickFlag){
+            			zTree.checkNode(treeNode,  !treeNode.checked,  true);
+            		},
+            onCheck: function(e,  treeId,  treeNode,  clickFlag){
+            			
+            		},
+            onExpand: function(e, treeId, treeNode) {
+                if (treeNode.isParent && treeNode.children == null) {
+                    expendChild(treeNode.id);
+                }
+            }             
+        }
+    };
+    var zNodes = [];
+    var nodes = null;
+    
+	window.onload=function(){
+		// 网页向E应用 postMessage 消息
+		dd.postMessage({fn:"init"});
+
+
+		// test();
+	}
+
+	function test(){
+        inpUnid = "";
+        inpUnidVal = "";
+        inpName = "";
+        inpNameVal = "";
+        actionUrl = "http://blysin.vaiwan.com:8081/fzoa/appinterface.action";
+        fn = "getUsersInfo";
+        // fn = "getDeptsInfo";
+
+        setting.check.chkStyle = "checkbox";
+        // setting.check.chkStyle = "radio";
+
+        userUnid = "71435EC45072BA4CFC77A42FA2A76F1B";
+        userDept = "3CE6F07432F5ECA7D2EB629E6E753744";
+        userDept = "";
+        type = 1;
+        isAlias = 0;
+        isUnderDept = 0;
+        level = 3;
+        nodes = getTreeData(actionUrl, fn, userUnid, userDept, type, isAlias, isUnderDept, level);
+        initTree();
+    }
+	
+	// 接收来自E应用的消息。
+	dd.onMessage = function(e) {
+		if('close' == e.fn){
+			dd.navigateBack({delta: 1});
+		}
+		else{
+			inpUnid = e.inpUnid;
+			inpUnidVal = e.inpUnidVal;
+			inpName = e.inpName;
+			inpNameVal = e.inpNameVal;
+			actionUrl = e.actionUrl;
+			fn = e.fn;
+			if(typeof(e.title)!='undefined' && e.title=='发布范围'){
+				$("#selectAll").css("display","block");
+			}
+			setting.check.chkStyle = e.chkStyle;
+			if("radio" == e.chkStyle){
+			    $('#selectAll').hide();//全选按钮隐藏
+            }
+            if("radio" == e.chkStyle){
+            	 $('#unSelectAll').hide();//取消全选按钮隐藏
+            }
+			userUnid = e.userUnid;
+			userDept = e.userDept;
+			type = e.type;
+			isAlias = e.isAlias;
+			isUnderDept = e.isUnderDept;
+			level = e.level;
+			nodes = getTreeData(actionUrl, fn, userUnid, userDept, type, isAlias, isUnderDept, level);
+			initTree();
+		}
+		//console.log(e); //{'sendToWebView': '1'}
+	}
+	
+	function initTree(){
+		var i = 0;
+		var nocheck;
+		for (i = 0; i < nodes.length; i++) {
+			nocheck = ('true' == nodes[i].nocheck);
+			if(nocheck && setting.check.chkStyle == "checkbox" && fn == "getUsersInfo"){
+                nocheck = false;
+            }
+
+			if (nodes[i].parent == "true") {
+				zNodes[i] = { id: nodes[i].id, pId: nodes[i].pId, name: nodes[i].name, open: false, isParent: true, nocheck: nocheck };
+			} 
+			else if(inpUnidVal.indexOf(nodes[i].id) > -1){
+				zNodes[i] = { id: nodes[i].id, pId: nodes[i].pId, name: nodes[i].name, checked: true, nocheck: nocheck };
+			}
+			else {
+           		zNodes[i] = { id: nodes[i].id, pId: nodes[i].pId, name: nodes[i].name, nocheck: nocheck };
+			}
+		}
+		zTree = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
+		setTimeout(function(){
+	        expandAll();
+	    },10);
+	}
+
+	function expandAll(){ 
+		var treeObj = zTree;
+		expandNodes(treeObj.getNodes()); 
+		if(!goAsync){
+			curStatus = ''; 
+		}
+	}
+	
+	function expandNodes(nodes){ //如果nodes为null 则return 
+		if(!nodes) return; //将状态设置为expand 
+		curStatus = 'expand'; //获取当前的树 
+		var treeObj = zTree; //循环展开节点 
+		for (var i = 0 ; i < nodes.length; i++){ 
+			treeObj.expandNode(nodes[i],true,false,false); //递归 如果子节点的是父节点则进行递归操作 
+			//alert(nodes[i].zAsync);
+			if(nodes[i].isParent){ 
+				expendChild(nodes[i].id);
+				expandNodes(nodes[i].children);
+			} else { 
+				goAsync = true; 
+			} 
+		} 
+	}
+
+	function initTreeSelectAll(){
+		var i = 0;
+		var nocheck;
+		for (i = 0; i < nodes.length; i++) {
+			nocheck = ('true' == nodes[i].nocheck);
+			if (nodes[i].parent == "true") {
+				zNodes[i] = { id: nodes[i].id, pId: nodes[i].pId, name: nodes[i].name, open: false, isParent: true, nocheck: nocheck };
+			} 
+			else if(inpUnidVal.indexOf(nodes[i].id) > -1){
+				zNodes[i] = { id: nodes[i].id, pId: nodes[i].pId, name: nodes[i].name, checked: true, nocheck: nocheck };
+			}
+			else {
+           		zNodes[i] = { id: nodes[i].id, pId: nodes[i].pId, name: nodes[i].name, nocheck: nocheck };
+			}
+		}
+		zTree = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
+	}
+	
+	function doSure(){
+		var returnUnidVal = '';
+        var returnNameVal = '';
+        var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+        var checkNodes = treeObj.getCheckedNodes(true);
+        var isUserCheckbox = (setting.check.chkStyle == "checkbox" && fn == "getUsersInfo");
+        for (var i = 0; i < checkNodes.length; i++) {
+            if(isUserCheckbox && checkNodes[i].isParent){
+                console.log( checkNodes[i])
+                continue;
+            }
+            if (returnUnidVal == "") {
+                returnUnidVal = checkNodes[i].id;
+                returnNameVal = checkNodes[i].name;
+            } else {
+                returnUnidVal += "," + checkNodes[i].id;
+                returnNameVal += "," + checkNodes[i].name;
+            }
+        }
+        
+		var selData = {};
+		selData.fn = 'confirm';
+		selData.inpUnidVal = returnUnidVal;
+		selData.inpNameVal = returnNameVal;
+		dd.postMessage(selData);
+		dd.navigateBack({delta: 1});
+        // console.log(selData)
+	}
+	
+	//部门全选
+	function doSelectAll(){
+		var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+		treeObj.checkAllNodes(true);
+	}
+	
+	
+	function doUnSelectAll(){
+		var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+		treeObj.checkAllNodes(false);
+	}
+	
+	
+	/**
+	 * 获取用户/部门
+	 * @param  {[type]}   actionUrl [description]
+	 * @param  {Function} fn        [description]
+	 * @param  {[type]}   token     [description]
+	 * @param  {[type]}   usercode  [description]
+	 * @param  {[type]}   userDept  [description]
+	 * @param  {[type]}   type      [类型]
+	 * @param  {Boolean}  isAlias   [是否显示别名]
+	 * @param  {Boolean}  isUnderDept   [是否获取隶属单位数据]
+	 * @param  {[type]}	  level     [部门树级别]
+	 * @return {[type]}             [description]
+	 */
+	function getTreeData(actionUrl, fn, usercode, userDept, type, isAlias, isUnderDept, level) {
+	    var p = {
+            fn: fn,
+            userunid: usercode,
+            userDept: userDept,
+            type: type,
+            isAlias:isAlias,
+            isUnderDept:isUnderDept,
+            level:level
+        };
+	    var resultObj;
+	    $.ajax({
+	        url: actionUrl,
+	        type: "post",
+	        dataType: 'json',
+	        timeout: 10000,
+	        async: false,
+	        data: {
+	            fn: fn,
+	            userunid: usercode,
+	            userDept: userDept,
+	            type: type,
+	            isAlias:isAlias,
+	            isUnderDept:isUnderDept,
+	            level:level
+	        },
+	        success: function(resp) {
+	            resultObj = resp.jsonString;
+	        },
+	        error: function(resp,status) {
+	        	var errorData = {};
+				errorData.fn = 'message';
+				
+	            if (status == 'timeout') { //超时,status还有success,error等值的情况
+	            	errorData.message = "请检查网络！";
+	            } else {
+	            	errorData.message = "调用接口失败！";
+	            }
+	            dd.postMessage(errorData);
+	        }
+	    });
+	    return resultObj;
+	}
+	
+	//展开子树
+    function expendChild(id) {
+    	var cNodes = getTreeData(actionUrl, fn, userUnid, id, '1', isAlias, level);
+
+        var isUserCheckbox = (setting.check.chkStyle == "checkbox" && fn == "getUsersInfo");
+    	var parentZNode,isparents,childZNode;
+    	for (var k = 0; k < cNodes.length; k++) {
+    		parentZNode  =  zTree.getNodeByParam("id",  id,  null);
+            var nocheck = ('true' == cNodes[k].nocheck);
+            if(nocheck && isUserCheckbox){
+                nocheck = false;
+            }
+            childZNode = new ZtreeNode(cNodes[k].id,  id,  cNodes[k].name, cNodes[k].parent, nocheck, (inpUnidVal.indexOf(cNodes[k].id) > -1));
+            zTree.addNodes(parentZNode,  childZNode,  true);
+    	}
+    }
+    
+    function  ZtreeNode(id,  pId,  name, isParent, nocheck, checked)  { //定义ztree的节点类  
+		this.id  =  id;      
+        this.pId  =  pId;      
+        this.name  =  name;  
+        this.isParent = isParent;
+        this.nocheck = nocheck;
+        this.checked = checked;
+    }
+</script>
+</html>

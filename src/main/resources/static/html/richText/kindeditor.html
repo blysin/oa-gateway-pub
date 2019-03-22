@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+
+<head>
+    <title></title>
+    <meta charset="utf-8"/>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <link rel="stylesheet" href="/static/css/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/css/ui-box.css">
+    <link rel="stylesheet" href="/static/css/ui-base.css">
+    <link rel="stylesheet" href="/static/css/ui-color.css">
+    <link rel="stylesheet" href="/static/css/appcan.icon.css">
+    <link rel="stylesheet" href="/static/css/sui/sm.css">
+    <link rel="stylesheet" href="/static/css/zTree/zTreeStyle.css" type="text/css">
+
+    <style>
+    	* {margin: 0; padding: 0;}
+    	html,body{
+			width: 100%;
+			height: 100%;
+			position: absolute;
+			left: 0;top: 0;
+			overflow: hidden;
+			overflow-y: auto;
+		}
+        .no-data {
+            text-align: center;
+            margin: 0px auto;
+        }
+ 
+        .create-info {
+            font-size: 0.75rem;
+            color: #8e8e8e;
+            padding-left: 1rem;
+        }
+
+        .title {
+            font-weight: bold;
+        }
+
+        .split-line {
+            /*margin-top:-1.5rem;*/
+            width: 100%;
+            border: none;
+            border-top: 1px solid #dedede;
+            position:relative;
+            float: left;
+        }
+
+        .content{
+            position: relative;
+            float: left;
+        }
+
+        .content-padded{
+            /* margin-top:-1.5rem; */
+            /*position: relative;*/
+            /*float: left;*/
+        }
+
+        .content-padded p {
+            font-weight: bold;
+        }
+
+        #content {
+            border: none;
+            resize: none;
+        }
+        #info_title{
+            /*margin-top:-1.5rem;*/
+            font-size: 1.3rem;
+            text-align: center;
+        }
+        #info_time{
+            font-size: 0.8rem;
+            display: inline-block;
+            width: 48%;
+        }
+        #info_author{
+            font-size: 0.8rem;
+            display: inline-block;
+            width: 48%;
+        }
+        .content-block{
+            position: relative;
+            float: left;
+        }
+        .content-info{
+        }
+        .info-content{
+            font-size: 1.2rem;
+            font-family: 思源黑体;
+        }
+        .ke-dialog{width:15rem !important;}
+    </style>
+</head>
+
+<body class="um-vp" ontouchstart>
+
+<!-- 标题栏 -->
+<!-- <header class="bar bar-nav" id="Header" style="display: none;">
+    <h1 class="title" onclick="doSure()">保 存</h1>
+</header> -->
+
+<!-- 这里是页面内容区 -->
+<div id="page_0" class="content up ub ub-ver" tabindex="0">
+    <div class="content-info">
+        <div class="content-padded">
+            <p id="info_title"></p>
+        </div>
+        <div class="create-info">
+            <div id="info_time"></div>
+            <div id="info_author"></div>
+        </div>
+    </div>
+    <hr class="split-line">
+    <div class="content-block" style="margin-top:0rem;">
+        <textarea id="content" name="content"></textarea>
+    </div>
+	<div class="uh bc-head  ubb bc-border" style="display:none;width:90%;margin-left: 5%;margin-bottom: 5px;border-radius:5px;line-height: 40px;height: 40px;" data-control="HEADER" id="Header">
+         <div class="ub nav-btn" style="margin-top: 0.2rem;margin-bottom: 0.2rem;font-size: 20px;color:#fff;" onclick="doSure()">
+                     保存
+         </div>
+     </div>
+</div>
+
+</body>
+<script type="text/javascript" src="https://appx/web-view.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery.min.js"></script>
+<script charset="utf-8" src="/static/js/kindeditor-4.1.11/kindeditor-all.js"></script>
+<script charset="utf-8" src="/static/js/kindeditor-4.1.11/lang/zh-CN.js"></script>
+<script type="text/javascript">
+    var KE, editor;
+    var actionUrl, userUnid, fn, docUnid, editOrRead, classify;
+    var isIphone = false;
+    // var dd = {
+    //     postMessage() {
+    //     },
+    //     onMessage() {
+    //     }
+    // }
+
+    KindEditor.ready(function (K) {
+        KE = K;
+        // 网页向E应用 postMessage 消息
+        dd.postMessage({fn: "init"});
+
+        //测试
+        // var e = {
+        //     actionUrl: "http://blysin.vaiwan.com:8081/fzoa/appinterface.action",
+        //     classify: "info_publish",
+        //     docUnid: "20181215204501XX4DC7CE32693C4F5D",
+        //     editOrRead: "0",
+        //     fn: "doRichText",
+        //     userUnid: "71435EC45072BA4CFC77A42FA2A76F1B"
+        // }
+        // actionUrl = e.actionUrl;
+        // userUnid = e.userUnid;
+        // fn = e.fn;
+        // docUnid = e.docUnid;
+        // editOrRead = e.editOrRead;
+        // classify = e.classify;
+        // getContent();
+        //    测试
+
+    })
+
+    // 接收来自E应用的消息。
+    dd.onMessage = function (e) {
+        // $('#info_author').text('hello world')
+        if ('close' == e.fn) {
+            dd.navigateBack({delta: 1});
+        } else {
+
+            actionUrl = e.actionUrl;
+            userUnid = e.userUnid;
+            fn = e.fn;
+            docUnid = e.docUnid;
+            editOrRead = e.editOrRead;
+            classify = e.classify;
+            isIphone = e.platform === 'iPhone';
+
+            getContent();
+        }
+    }
+
+    //初始化
+    function getContent() {
+        // $.showPreloader();
+        $.ajax({
+            url: actionUrl,
+            type: "post",
+            dataType: 'json',
+            timeout: 10000,
+            async: false,
+            data: {
+                userunid: userUnid,
+                fn: fn,
+                docUnid: docUnid,
+                method: 'get',
+                classify: classify,
+                editOrRead: editOrRead
+            },
+            success: function (resp) {
+                // $.hidePreloader();
+                var richObj = resp.jsonString;
+                var resultObj = richObj.content;
+                $('#info_title').html(richObj.title)
+                $('#info_time').html("发布日期："+richObj.createTime)
+                $('#info_author').html("发布单位："+richObj.author)
+
+                var items = [];
+                if ('1' == editOrRead) {
+                    $("#Header").show();//, "fontname", "fontsize"
+                    items = ["source", "undo", "redo", "cut", "copy", "paste", "justifyleft", "justifycenter", "justifyright", "justifyfull", "indent", "outdent", "clearhtml", "selectall", "bold", "italic", "underline", "image"];
+
+                    //文本编辑器
+                    editor = KE.create('textarea[name="content"]', {
+                        resizeType: 0,
+                        filterMode: true,
+                        designMode: true,//如果为false，默认打开的是代码模式
+                        allowPreviewEmoticons: false,
+                        filePostName: "uploadFile",
+		                uploadJson: '../../../KindeditorUpload',
+		                allowImageUpload: true,
+		                allowImageRemote : false,
+                        newlineTag: "p",
+                        height: $(window).height() - $("#Header").height() - 20,
+                        width: '99%',
+                        items: items,
+                        cssData: 'body {font-family: "'+(isIphone?'苹方':'思源黑体')+'"; font-size: 1.3rem}',
+                        afterCreate: function () {
+                            var self = this;
+                            self.html(resultObj);
+                            //self.readonly('1' != editOrRead);
+                        }
+                    });
+                } else {
+                    $("#Header").remove();
+                    try {
+                        var el = $(resultObj);
+                        el.find('img').css('width', '100%');
+                        el.find('span').css("font-size", "1.2rem");
+                        if(isIphone)el.find('span').css('font-family','苹方');
+                        $("#content").parent().html(el);
+                    } catch (e) {
+                        $("#content").parent().html(resultObj);
+                    }
+                }
+
+            },
+            error: function (resp, status) {
+                var errorData = {};
+                errorData.fn = 'message';
+
+                if (status == 'timeout') { //超时,status还有success,error等值的情况
+                    errorData.message = "请检查网络！";
+                } else {
+                    errorData.message = "调用接口失败！";
+                }
+                dd.postMessage(errorData);
+            }
+        });
+        // return resultObj;
+    }
+
+    function doSure() {
+        editor.sync();
+        $.ajax({
+            url: actionUrl,
+            type: "post",
+            dataType: 'json',
+            timeout: 10000,
+            async: false,
+            data: {
+                userunid: userUnid,
+                fn: fn,
+                docUnid: docUnid,
+                method: 'save',
+                classify: classify,
+                content: $("#content").val()
+            },
+            success: function (resp) {
+                var postData = {};
+                postData.fn = 'message';
+                if ('true' == resp.jsonString) {
+                    postData.message = "保存成功！";
+                } else {
+                    postData.message = "保存失败！";
+                }
+                dd.postMessage(postData);
+            },
+            error: function (resp, status) {
+                var errorData = {};
+                errorData.fn = 'message';
+
+                if (status == 'timeout') { //超时,status还有success,error等值的情况
+                    errorData.message = "请检查网络！";
+                } else {
+                    errorData.message = "调用接口失败！";
+                }
+                dd.postMessage(errorData);
+            }
+        });
+    }
+
+
+    function doPreview(docUnid, attrUnid, filePath){
+        //alert(docUnid+"--"+attrUnid);
+        var postData = {};
+        postData.fn = 'doPreview';
+        postData.docUnid = docUnid;
+        postData.attrUnid = attrUnid;
+        postData.filePath = filePath;
+        dd.postMessage(postData);
+    }
+</script>
+</html>

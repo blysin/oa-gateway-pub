@@ -1,16 +1,17 @@
 package com.linewell.oa.gateway.controller;
 
 import com.linewell.oa.gateway.property.OaProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -26,12 +27,16 @@ import java.util.Set;
  * @since 2019-01-14
  */
 @RestController
+@RequestMapping(value = "/gateway", method = RequestMethod.POST)
+@Slf4j
 public class RouterController {
     @Autowired
     private RestTemplate restTemplate;
 
     @Autowired
     private OaProperties oaProperties;
+
+    private final String METHOD = "method";
 
     @RequestMapping("/appOperation")
     public Object appOperation(HttpServletRequest request, HttpServletResponse response) {
@@ -43,6 +48,12 @@ public class RouterController {
         return distribute(request, oaProperties.getAppInterfaceUrl());
     }
 
+    @RequestMapping("/appFiles/{method}")
+    public Object appFiles(HttpServletRequest request, HttpServletResponse response, @PathVariable("method") String method) {
+        log.info(method);
+        return distribute(request, oaProperties.getAppFilesUrl().replace(METHOD, method));
+    }
+
     /**
      * 请求分发
      *
@@ -51,9 +62,7 @@ public class RouterController {
      * @return
      */
     public Object distribute(HttpServletRequest request, String url) {
-        //ResponseEntity<String> result = restTemplate.postForEntity(url, getParams(request), String.class);
-        //return result.getBody();
-        return restTemplate.postForObject(url, getParams(request),Object.class);
+        return restTemplate.postForObject(url, getParams(request), Object.class);
     }
 
     /**
@@ -65,7 +74,6 @@ public class RouterController {
     private HttpEntity getParams(HttpServletRequest request) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        //headers.setContentType(MediaType.APPLICATION_JSON);
         Map<String, String[]> map = request.getParameterMap();
         MultiValueMap<String, Object> params = null;
         if (MapUtils.isNotEmpty(map)) {
