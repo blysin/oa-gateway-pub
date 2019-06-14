@@ -1,5 +1,6 @@
 package com.linewell.oa.gateway.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.linewell.oa.gateway.property.OaProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
@@ -62,7 +64,16 @@ public class RouterController {
      * @return
      */
     public Object distribute(HttpServletRequest request, String url) {
-        return restTemplate.postForObject(url, getParams(request), Object.class);
+        Object result = null;
+        HttpEntity entity = getParams(request);
+        try {
+            result = restTemplate.postForObject(url, entity, Object.class);
+        } catch (RestClientException e) {
+            log.error("请求错误，请求地址："+url);
+            log.error("请求参数：" + JSON.toJSONString(entity.getBody(), true));
+            e.printStackTrace();
+        }
+        return result;
     }
 
     /**

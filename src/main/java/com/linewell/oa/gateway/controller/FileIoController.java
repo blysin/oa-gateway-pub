@@ -7,12 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.system.ApplicationHome;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
@@ -64,9 +63,14 @@ public class FileIoController {
      * @param userunid
      */
     @RequestMapping("/flowImage")
-    public void flowImage(HttpServletResponse response, String docUnid, String flowUnid, String userunid) {
-        String url = oaProperties.getAppFlowImageUrl() + "?docUnid=" + docUnid + "&flowUnid=" + flowUnid + "&userunid=" + userunid;
-        download(response, url);
+    public void flowImage(HttpServletResponse response, @RequestParam String docUnid, @RequestParam String flowUnid, @RequestParam String userunid) {
+        if (docUnid.length() == 32 || userunid.length() == 32 || flowUnid.length() == 32) {
+            String url = oaProperties.getAppFlowImageUrl() + "?docUnid=" + docUnid + "&flowUnid=" + flowUnid + "&userunid=" + userunid;
+            download(response, url);
+        } else {
+            log.warn("阅办单下载参数错误");
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+        }
     }
 
     /**
@@ -76,9 +80,14 @@ public class FileIoController {
      * @param fileUnid
      */
     @RequestMapping("/download")
-    public void fileDownload(HttpServletResponse response, String fileUnid) {
-        String url = oaProperties.getAppFileDownloadUrl() + "?fileUnid=" + fileUnid;
-        download(response, url);
+    public void fileDownload(HttpServletResponse response, @RequestParam String fileUnid) {
+        if (true || fileUnid.length() == 32) {
+            String url = oaProperties.getAppFileDownloadUrl() + "?fileUnid=" + fileUnid;
+            download(response, url);
+        } else {
+            log.warn("文件下载fileUnid格式不对：" + fileUnid);
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+        }
     }
 
     /**
@@ -100,14 +109,17 @@ public class FileIoController {
 
         String result = null;
         try {
-            File dest = new File(getBaseFile() + fileName);
+            File dest = new File(getBaseFile() , fileName);
+
+            log.info(dest.getName());
+
             file.transferTo(dest);
             log.info("文件上传，临时文件路径：" + dest.getPath());
 
             FileSystemResource resource = new FileSystemResource(dest);
             MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
             param.add("file", resource);
-            param.add("fileName", file.getName());
+            param.add("fileName", dest.getName());
             param.add("belongTo", belongTo);
             param.add("file_type", file_type);
             param.add("file_creator", file_creator);
@@ -126,9 +138,22 @@ public class FileIoController {
      * @return
      * @throws FileNotFoundException
      */
-    private File getBaseFile() throws FileNotFoundException {
+    private File getBaseFile() {
         if (baseFile == null) {
-            baseFile = new File(ResourceUtils.getURL("classpath:").getPath() + "/temp");
+            ApplicationHome home = new ApplicationHome(getClass());
+            File jarFile = home.getSource();
+            baseFile = jarFile.getParentFile();
+            log.info("临时文件根目录：" + baseFile.getPath());
+            //String osName = System.getProperty("os.name");
+            //log.info("当前系统类型：" + osName);
+            //if (StringUtils.containsIgnoreCase(osName, "windows")) {
+            //    baseFile = new File("c:/temp");
+            //} else {
+            //    baseFile = new File("/home/gateway/cache/temp");
+            //}
+            //if (!baseFile.exists()) {
+            //    baseFile.mkdirs();
+            //}
         }
         return baseFile;
     }

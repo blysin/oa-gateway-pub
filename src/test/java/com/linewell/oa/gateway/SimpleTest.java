@@ -12,6 +12,10 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.linewell.oa.gateway.domail.PostResult;
 import com.linewell.oa.gateway.util.JwtUtils;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.NotFoundException;
 import org.apache.http.client.utils.HttpClientUtils;
 import org.junit.Test;
 import org.springframework.util.LinkedMultiValueMap;
@@ -28,12 +32,12 @@ import java.util.Map;
 public class SimpleTest {
 
     @Test
-    public void tokenTest(){
+    public void tokenTest() {
         System.out.println(JwtUtils.getToken("dsk"));
     }
 
     @Test
-    public void decodeToken(){
+    public void decodeToken() {
         String token = "eyJraWQiOiJ1c2VydW5pZCIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJsaW5ld2VsbDEiLCJleHAiOjE1NDcxOTQ1Mjh9.4jR3NQ3m__MO8lcMgho2si7R27FWCL1v0-pcWzho5FQ";
         try {
             DecodedJWT jwt = JWT.decode(token);
@@ -41,14 +45,14 @@ public class SimpleTest {
             System.out.println(jwt.getKeyId());
             System.out.println(jwt.getIssuer());
 
-        } catch (JWTVerificationException exception){
+        } catch (JWTVerificationException exception) {
 
         }
     }
 
     //eyJraWQiOiJsd0AxMjMiLCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NDcxOTM2ODJ9.4uelAAJ0Qff4VWgePLD06dewhzvLDSZEBPHE6F_nDGg
     @Test
-    public void token(){
+    public void token() {
         PostResult result = PostResult.builder().result(false).status(404).data("hello world").build();
         System.out.println(JSON.toJSON(result));
     }
@@ -65,5 +69,27 @@ public class SimpleTest {
 
         JSONObject json = JSON.parseObject(str);
         System.out.println(JSON.toJSONString(json, true));
+    }
+
+    @Test
+    public void reBuildClass() throws Exception {
+        ClassPool.getDefault().insertClassPath("i:/temp/aspose-words-18.6-jdk16.jar");
+        CtClass c2 = ClassPool.getDefault().getCtClass("com.aspose.words.zzZLX");
+        CtMethod[] ms = c2.getDeclaredMethods();
+        for (CtMethod c : ms) {
+            System.out.println(c.getName());
+            CtClass[] ps = c.getParameterTypes();
+            for (CtClass cx : ps) {
+                System.out.println("\t" + cx.getName());
+            }
+
+            if (c.getName().equals("zzZ") && ps.length == 2 && ps[0].getName().equals("org.w3c.dom.Node") && ps[1].getName().equals("org.w3c.dom.Node")) {
+                System.out.println("find it!");
+                c.insertBefore("{return;}");
+            }
+
+        }
+
+        c2.writeFile("d:/");
     }
 }

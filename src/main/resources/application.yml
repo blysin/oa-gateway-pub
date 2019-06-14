@@ -18,7 +18,7 @@ http-pool:
 
 #oa配置
 oa:
-  base-url: http://localhost:8088/fzoa
+  base-url: http://localhost:8080/fzoa
   app-interface-url: ${oa.base-url}/appinterface.action
   app-operation-url: ${oa.base-url}/appOperation.action
   app-micro-service-url: ${oa.base-url}/appMicroService.action
